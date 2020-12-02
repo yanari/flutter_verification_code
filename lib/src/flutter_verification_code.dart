@@ -2,34 +2,23 @@ import 'package:flutter/material.dart';
 
 class VerificationCode extends StatefulWidget {
   final ValueChanged<String> onCompleted;
-  final ValueChanged<bool> onEditing;
   final TextInputType keyboardType;
   final int length;
-  final double itemSize;
   // in case underline color is null it will use primaryColor from Theme
   final Color underlineColor;
   final TextStyle textStyle;
-  //TODO autofocus == true bug
   final bool autofocus;
-
-  ///takes any widget, display it, when tap on that element - clear all fields
-  final Widget clearAll;
 
   VerificationCode({
     Key key,
     @required this.onCompleted,
-    @required this.onEditing,
     this.keyboardType = TextInputType.number,
     this.length = 4,
     this.underlineColor,
-    this.itemSize = 50,
     this.textStyle = const TextStyle(fontSize: 25.0),
     this.autofocus = false,
-    this.clearAll,
   })  : assert(length > 0),
-        assert(itemSize > 0),
         assert(onCompleted != null),
-        assert(onEditing != null),
         super(key: key);
 
   @override
@@ -81,24 +70,18 @@ class _VerificationCodeState extends State<VerificationCode> {
       style: widget.textStyle,
       decoration: InputDecoration(
         enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
+          borderSide: BorderSide(color: Colors.transparent),
         ),
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-              color: widget.underlineColor ?? Theme.of(context).primaryColor),
+            color: Colors.transparent,
+          ),
         ),
         counterText: "",
-        contentPadding: EdgeInsets.all(((widget.itemSize * 2) / 10)),
         errorMaxLines: 1,
       ),
 //      textInputAction: TextInputAction.previous,
       onChanged: (String value) {
-        if ((_currentIndex + 1) == widget.length && value.length > 0) {
-          widget.onEditing(false);
-        } else {
-          widget.onEditing(true);
-        }
-
         if (value.length > 0 && index < widget.length ||
             index == 0 && value.isNotEmpty) {
           if (index == widget.length - 1) {
@@ -144,12 +127,24 @@ class _VerificationCodeState extends State<VerificationCode> {
   List<Widget> _buildListWidget() {
     List<Widget> listWidget = List();
     for (int index = 0; index < widget.length; index++) {
-      double left = (index == 0) ? 0.0 : (widget.itemSize / 10);
-      listWidget.add(Container(
-          height: widget.itemSize,
-          width: widget.itemSize,
-          margin: EdgeInsets.only(left: left),
-          child: _buildInputItem(index)));
+      listWidget.add(
+        Container(
+          decoration: index != widget.length - 1
+              ? BoxDecoration(
+                  border: Border(
+                    right: BorderSide(
+                      color: Theme.of(context).primaryColor,
+                      width: 2.0,
+                    ),
+                  ),
+                )
+              : null,
+          // border: Border.all(color: Colors.red)),
+          height: 28.0,
+          width: 70.0,
+          child: _buildInputItem(index),
+        ),
+      );
     }
     return listWidget;
   }
@@ -157,33 +152,23 @@ class _VerificationCodeState extends State<VerificationCode> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _buildListWidget(),
-            ),
-            widget.clearAll != null
-                ? _clearAllWidget(widget.clearAll)
-                : Container(),
-          ],
-        ));
-  }
-
-  Widget _clearAllWidget(child) {
-    return GestureDetector(
-      onTap: () {
-        widget.onEditing(true);
-        for (var i = 0; i < widget.length; i++) {
-          _listControllerText[i].text = '';
-        }
-        setState(() {
-          _currentIndex = 0;
-          FocusScope.of(context).requestFocus(_listFocusNode[0]);
-        });
-      },
-      child: child,
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 7.0),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Theme.of(context).primaryColor,
+            width: 2.0,
+          ),
+          borderRadius: BorderRadius.all(
+            Radius.circular(20.0),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: _buildListWidget(),
+        ),
+      ),
     );
   }
 }
