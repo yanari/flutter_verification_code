@@ -4,7 +4,6 @@ class VerificationCode extends StatefulWidget {
   final ValueChanged<String> onCompleted;
   final TextInputType keyboardType;
   final int length;
-  // in case underline color is null it will use primaryColor from Theme
   final Color underlineColor;
   final TextStyle textStyle;
   final bool autofocus;
@@ -124,7 +123,7 @@ class _VerificationCodeState extends State<VerificationCode> {
     }
   }
 
-  List<Widget> _buildListWidget() {
+  List<Widget> _buildListWidget(double maxWidth) {
     List<Widget> listWidget = List();
     for (int index = 0; index < widget.length; index++) {
       listWidget.add(
@@ -141,7 +140,7 @@ class _VerificationCodeState extends State<VerificationCode> {
               : null,
           // border: Border.all(color: Colors.red)),
           height: 28.0,
-          width: 70.0,
+          width: ((maxWidth - 14.0) / widget.length),
           child: _buildInputItem(index),
         ),
       );
@@ -151,24 +150,28 @@ class _VerificationCodeState extends State<VerificationCode> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 7.0),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Theme.of(context).primaryColor,
-            width: 2.0,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 7.0),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).primaryColor,
+                width: 2.0,
+              ),
+              borderRadius: BorderRadius.all(
+                Radius.circular(20.0),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: _buildListWidget(constraints.maxWidth),
+            ),
           ),
-          borderRadius: BorderRadius.all(
-            Radius.circular(20.0),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: _buildListWidget(),
-        ),
-      ),
+        );
+      },
     );
   }
 }
