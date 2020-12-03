@@ -7,10 +7,12 @@ class VerificationCode extends StatefulWidget {
   final Color underlineColor;
   final TextStyle textStyle;
   final bool autofocus;
+  final double maxWidth;
 
   VerificationCode({
     Key key,
     @required this.onCompleted,
+    this.maxWidth = double.infinity,
     this.keyboardType = TextInputType.number,
     this.length = 4,
     this.underlineColor,
@@ -123,7 +125,7 @@ class _VerificationCodeState extends State<VerificationCode> {
     }
   }
 
-  List<Widget> _buildListWidget(double maxWidth) {
+  List<Widget> _buildListWidget() {
     List<Widget> listWidget = List();
     for (int index = 0; index < widget.length; index++) {
       listWidget.add(
@@ -140,7 +142,7 @@ class _VerificationCodeState extends State<VerificationCode> {
               : null,
           // border: Border.all(color: Colors.red)),
           height: 28.0,
-          width: ((maxWidth - 14.0) / widget.length),
+          width: ((widget.maxWidth - 14.0) / widget.length),
           child: _buildInputItem(index),
         ),
       );
@@ -150,28 +152,24 @@ class _VerificationCodeState extends State<VerificationCode> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 7.0),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).primaryColor,
-                width: 2.0,
-              ),
-              borderRadius: BorderRadius.all(
-                Radius.circular(20.0),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _buildListWidget(constraints.maxWidth),
-            ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 7.0),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Theme.of(context).primaryColor,
+            width: 2.0,
           ),
-        );
-      },
+          borderRadius: BorderRadius.all(
+            Radius.circular(20.0),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: _buildListWidget(),
+        ),
+      ),
     );
   }
 }
